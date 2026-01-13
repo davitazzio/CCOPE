@@ -1,0 +1,5 @@
+apiVersion: providerfl.crossplane.io/v1alpha1
+kind: xfl
+metadata:
+  name: xfl-1
+spec: {}

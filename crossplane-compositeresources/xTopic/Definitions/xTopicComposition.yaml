@@ -1,0 +1,197 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: topic-composition
+  annotations:
+    crossplane.io/external-name: topic-composition
+spec:
+  compositeTypeRef:
+    apiVersion: slices.crossplane.io/vlalphal
+    kind: xtopic
+  patchSets:
+  - name: metadata
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+    - fromFieldPath: metadata.annotations
+      toFieldPath: metadata.annotations
+  resources:
+    # TOPIC PROVIDERCONFIG
+    # - name: topic-namespace
+    #   base: 
+    #     apiVersion: kubernetes.crossplane.io/v1alpha1
+    #     kind: Object
+    #     metadata:
+    #       annotations:
+    #         uptest.upbound.io/timeout: "60"
+    #       name: topic-namespace
+    #       namespace: crossplane-system
+    #     spec:
+    #       forProvider:
+    #         manifest:
+    #           apiVersion: v1
+    #           kind: Namespace
+    #           metadata:
+    #             name: crossplane-system
+    #       providerConfigRef:
+    #         name: kubernetes-provider
+    - name: topic-provider-secret
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          annotations:
+            uptest.upbound.io/timeout: "60"
+            crossplane.io/external-name: topic-provider-secret
+          name: topic-provider-secret
+          namespace: crossplane-system
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                namespace: crossplane-system
+                name: topic-provider-secret
+              type: Opaque
+              data:
+                # credentials: BASE64ENCODED_PROVIDER_CREDS
+          providerConfigRef:
+            name: kubernetes-provider
+    - name: topic-providerconfig
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          annotations:
+            uptest.upbound.io/timeout: "60"
+            crossplane.io/external-name: topic-providerconfig
+          name: topic-providerconfig
+          namespace: crossplane-system
+        spec:
+            forProvider:
+              manifest:
+                apiVersion: topicprovider.crossplane.io/v1alpha1
+                kind: ProviderConfig
+                metadata:
+                  annotations:
+                    crossplane.io/external-name: topic-providerconfig
+                  name: topic-providerconfig
+                spec:
+                  credentials:
+                    source: Secret
+                    secretRef:
+                      namespace: crossplane-system
+                      name: topic-provider-secret
+                      key: credentials
+            providerConfigRef:
+              name: kubernetes-provider
+    # CUSTOM RESOURCE TOPIC
+    - name: cr-topic
+      base:
+        apiVersion: topic.topicprovider.crossplane.io/v1alpha1
+        kind: MqttTopic
+        spec:
+          forProvider:
+            degradedtreshold: "20"
+          providerConfigRef:
+            name: topic-providerconfig
+      patches:
+      - type: PatchSet
+        patchSetName: metadata
+      - fromFieldPath: spec.id
+        toFieldPath: spec.forProvider.name
+      - fromFieldPath: spec.host
+        toFieldPath: spec.forProvider.host
+      - fromFieldPath: spec.username
+        toFieldPath: spec.forProvider.username
+      - fromFieldPath: spec.password
+        toFieldPath: spec.forProvider.password
+    # REMOTE KUBERNETES PROVIDER FOR THE BROKER
+    # You need to create this kubernetes provider if you want to install the broker on a remote cluster
+    # OTHERWISE if you want to install the broker in the same cluster, you can use the kubernetes provider config
+    # that you created when you installed the kubernetes-provider.
+
+    # - name: remote-kubernetes-provider-secret
+    #   base:
+    #     apiVersion: kubernetes.crossplane.io/v1alpha1
+    #     kind: Object
+    #     metadata:
+    #       annotations:
+    #         uptest.upbound.io/timeout: "60"
+    #         crossplane.io/external-name: remote-kubernetes-provider-secret
+    #       name: remote-kubernetes-provider-secret
+    #       namespace: crossplane-system
+    #     spec:
+    #       forProvider:
+    #         manifest:
+    #           apiVersion: v1
+    #           kind: Secret
+    #           metadata:
+    #             name: remote-kubernetes-provider-secret
+    #             namespace: crossplane-system
+    #           type: Opaque
+    #       providerConfigRef:
+    #         name: kubernetes-provider
+    #   patches:
+    #   - fromFieldPath: spec.remotekubeconfig
+    #     toFieldPath: spec.forProvider.manifest.data.kubeconfig
+    # - name: remote-kubernetes-provider-config
+    #   base:
+    #     apiVersion: kubernetes.crossplane.io/v1alpha1
+    #     kind: Object
+    #     metadata:
+    #       annotations:
+    #         uptest.upbound.io/timeout: "60"
+    #         crossplane.io/external-name: remote-kubernetes-provider-config
+    #       name: remote-kubernetes-provider-config
+    #       namespace: crossplane-system
+    #     spec:
+    #       forProvider:
+    #         manifest:
+    #           apiVersion: kubernetes.crossplane.io/v1alpha1
+    #           kind: ProviderConfig
+    #           metadata:
+    #             annotations:
+    #               crossplane.io/external-name: remotekubernetesproviderconfig
+    #               crossplane.io/composition-resource-name: remote-kubernetes-provider-config
+    #             name: remote-kubernetes-provider-config
+    #           spec:
+    #             credentials:
+    #               secretRef:
+    #                 key: kubeconfig
+    #                 name: remote-kubernetes-provider-secret
+    #                 namespace: crossplane-system
+    #               source: Secret
+    #       providerConfigRef:
+    #         name: kubernetes-provider
+
+    # EMQX BROKER POD
+    - name: kubernetes-broker
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha2
+        kind: Object
+        metadata:
+          annotations:
+            uptest.upbound.io/timeout: "60"
+            crossplane.io/external-name: kubernetes-broker
+          name: broker-emqx
+          namespace: default
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: apps.emqx.io/v2beta1
+              kind: EMQX
+              metadata:
+                name: emqx
+                namespace: default
+              spec:
+                image: emqx:5
+          providerConfigRef:
+            name: kubernetes-provider #HERE INSERT THE KUBERNETES PROVIDER CONFIG THAT YOU CREATED WHEN YOU INSTALLED THE KUBERNETES PROVIDER (you can run kubectl get providerconfigs)
+            # name: remote-kubernetes-provider-config
+      patches:
+      - fromFieldPath: spec.username
+        toFieldPath: spec.forProvider.manifest.spec.bootstrapAPIKeys[0].key
+      - fromFieldPath: spec.password
+        toFieldPath: spec.forProvider.manifest.spec.bootstrapAPIKeys[0].secret

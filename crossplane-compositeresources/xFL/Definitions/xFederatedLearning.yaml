@@ -1,0 +1,77 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: flclient.composition
+spec:
+  compositeTypeRef:
+    apiVersion: providerfl.crossplane.io/v1alpha1
+    kind: xfl
+  resources:
+    - name: flclient-1
+      base:
+        apiVersion: federatedlearning.providerflclient.crossplane.io/v1alpha1
+        kind: FLClient
+        spec:
+          forProvider:
+            client_address: "http://dtazzioli-edge.cloudmmwunibo.it:30001"
+            port: "3001"
+            epochs: "1"
+            batch_size: "16"
+            client_id: "0"
+            update_period: "100.0"
+            topic_name: "provatopicprovider"
+            server_address: "http://dtazzioli-cloud.cloudmmwunibo.it:3000/"
+            broker_address: "as-sensiblecity1.cloudmmwunibo.it"
+          providerConfigRef:
+            name: flclientprovider-config
+    - name: flclient-deployment
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: flclient-deployment
+                namespace: default
+                labels:
+                  app: flclient-app
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app: flclient-app
+                template:
+                  metadata:
+                    labels:
+                      app: flclient-app
+                  spec:
+                    containers:
+                      - image: lucaserf/flclient:latest
+                        name: flclient-container
+                        imagePullPolicy: Always
+                        ports:
+                          - containerPort: 3001
+    - name: flclient-service
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: flclient-service
+                namespace: default
+              spec:
+                type: NodePort
+                selector:
+                  app: flclient-app
+                ports:
+                  - protocol: "TCP"
+                    port: 3001
+                    targetPort: 3001
+                    nodePort: 30001

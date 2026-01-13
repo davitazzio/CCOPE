@@ -1,0 +1,12 @@
+apiVersion: baremetal.baremetalprovider.crossplane.io/v1alpha1
+kind: EmqxProcess
+metadata:
+  name: emqx-3
+spec:
+  forProvider:
+    host: "dtazzioli-baremetaledge.cloudmmwunibo.it"
+    username: "dtazzioli"
+    password: "dtazzioli"
+    brokerAPIKey: "my-app:AAA4A275-BEEC-4AF8-B70B-DAAC0341F8EB"
+  providerConfigRef:
+    name: example

@@ -1,0 +1,13 @@
+apiVersion: baremetal.baremetalprovider.crossplane.io/v1alpha1
+kind: Process
+metadata:
+  name: emqx
+spec:
+  forProvider:
+    name: "emqx"
+    host: "dtazzioli-baremetaledge.cloudmmwunibo.it"
+    url: "https://raw.githubusercontent.com/davitazzio/process-provider/main/script.sh"
+    username: "dtazzioli"
+    password: "dtazzioli"
+  providerConfigRef:
+    name: example

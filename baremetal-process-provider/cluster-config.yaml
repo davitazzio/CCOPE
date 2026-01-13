@@ -1,0 +1,27 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  # Address of the host machine of the kind cluster.
+  apiServerAddress: # insert here the vm address
+  apiServerPort: 6443
+nodes:
+  - role: control-plane
+    extraPortMappings:
+
+        # FL client-server communication
+      - containerPort: 30001 
+        hostPort: 30001
+        listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+        protocol: tcp # Optional, defaults to tcp
+
+        # broker subscription port - open on the cluster that hosts the broker
+      - containerPort: 1883
+        hostPort: 1883
+        listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+        protocol: tcp # Optional, defaults to tcp
+
+        # broker APIs port - open on the cluster that hosts the broker
+      - containerPort: 18083
+        hostPort: 18083
+        listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+        protocol: tcp # Optional, defaults to tcp

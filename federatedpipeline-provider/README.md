@@ -1,4 +1,4 @@
-## provider-providerfederatedpipeline
+## federatedpipeline provider
 
 This provider can access kubernetes API to get data from topics and federated learning clients in order to scale the clients when the topics are cluttered.
 

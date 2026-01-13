@@ -1,0 +1,12 @@
+apiVersion: slices.crossplane.io/vlalphal
+kind: xtopic6
+metadata:
+  name: topicxr
+spec:
+
+  id: "provatopicprovider"
+  version: v1alpha1
+  host: "as-sensiblecity1.cloudmmwunibo.it"
+  username: "77516558eb5b721f"
+  password: "o9CYsHQ8VPTQ26ZkiylQ8c6Obd61nNEetQi1DKEDBJzC"
+  degradedtreshold: "20"

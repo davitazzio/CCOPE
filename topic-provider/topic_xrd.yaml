@@ -1,0 +1,48 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xtopics6.slices.crossplane.io
+spec:
+  group: slices.crossplane.io
+  names:
+    kind: xtopic6
+    plural: xtopics6
+  claimNames:
+    kind: topicclaim
+    plural: topicclaims
+  versions :
+  - name: vlalphal
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema: 
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                descrption: topic ID
+              version:
+                description: topic xr version
+                type: string
+              host:
+                description: host of the broker
+                type: string
+                default: localhost
+              username:
+                description: username of the broker
+                type: string
+              password:
+                description: password of the broker
+                type: string
+              degradedtreshold:
+                description: treshold of the queue to mark the topic degraded
+                type: string
+            required:
+              - id
+              - host 
+              - username
+              - password
+              - degradedtreshold

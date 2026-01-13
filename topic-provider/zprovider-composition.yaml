@@ -1,0 +1,15 @@
+apiVersion: apiextensions.crossplane.io/vl
+kind: Composition
+metadata:
+  name: remote-kubernetes-provider
+spec:
+  compositeTypeRef:
+    apiVersion: slices.crossplane.io/vlalphal
+    kind: xtopic6
+  patchSets:
+  - name: metadata
+    patches:
+    - fromFieldPath: spec.id
+      toFieldPath: metadata.name
+  resources:
+    

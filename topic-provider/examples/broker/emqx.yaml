@@ -1,0 +1,10 @@
+apiVersion: apps.emqx.io/v2beta1
+kind: EMQX
+metadata:
+   name: emqx
+spec:
+  image: emqx:5
+  bootstrapAPIKeys:
+  - key: "controller-API"
+    secret: "o9CYsHQ8VPTQ26ZkiylQ8c6Obd61nNEetQi1DKEDBJzC"
+

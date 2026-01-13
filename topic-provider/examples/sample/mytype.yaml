@@ -1,0 +1,13 @@
+apiVersion: topic.topicprovider.crossplane.io/v1alpha1
+kind: MqttTopic
+metadata:
+  name: "provatopicprovider2"
+spec:
+  forProvider:
+      name: "provatopicprovider"
+      host: "as-sensiblecity1.cloudmmwunibo.it"
+      username: "77516558eb5b721f"
+      password: "o9CYsHQ8VPTQ26ZkiylQ8c6Obd61nNEetQi1DKEDBJzC"
+      degraded_treshold: "20"
+  providerConfigRef:
+    name: example

@@ -1,0 +1,113 @@
+#   IN QUESTO PROVIDER CI SONO I MANIFEST PER: 
+#   -SECRET CHE CONTIENE IL KUBECONFIG DEL CLUSTER REMOTO. 
+#    IL CLUSTER REMOTO KIND DEVE ESSERE STATO CREATO IN MODO CHE SIA IN ASCOLTO 
+#    SULL'INDIRIZZO DELLA MACCHINA
+apiVersion: v1
+data:
+  kubeconfig: ""
+  
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-13T15:00:09Z"
+  name: cluster-config
+  namespace: crossplane-system
+  resourceVersion: "891"
+  uid: 4c11565d-757f-4510-9465-d7bdff996971
+type: Opaque
+--- 
+
+#   QUESTO è IL PROVIDER CONFIG CHE USA IL SECRET. ORA TUTTI GLI OGGETTI ASSOCIATI A QUESTO
+#   PROVIDER CONFIG SONO RIFERITI AL CLUSTER REMOTO
+apiVersion: kubernetes.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: kubernetes-provider
+spec:
+  credentials:
+    secretRef:
+      key: kubeconfig
+      name: cluster-config
+      namespace: crossplane-system
+    source: Secret
+
+
+#   INFINE QUESTO è L'OGGETTO REMOTO. 
+---
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  annotations:
+    crossplane.io/external-create-pending: "2024-06-13T15:00:21Z"
+    crossplane.io/external-create-succeeded: "2024-06-13T15:00:21Z"
+    crossplane.io/external-name: davidesample-namespace
+    uptest.upbound.io/timeout: "60"
+  creationTimestamp: "2024-06-13T15:00:20Z"
+  finalizers:
+  - finalizer.managedresource.crossplane.io
+  generation: 2
+  name: davidesample-namespace
+  resourceVersion: "931"
+  uid: eba928ca-ef82-4829-b35f-40bf5fa0b764
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        labels:
+          example: "true"
+  managementPolicies:
+  - '*'
+  providerConfigRef:
+    name: kubernetes-provider
+
+
+#   QUESTO è UN BROKER EMQX REMOTO (SULL'HOST REMOTO DEVE 
+#   ESSERCI INSTALLATO IL PROVIDER). 
+
+---
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  annotations:
+    uptest.upbound.io/timeout: "60"
+  name: broker-emqx
+  namespace: default
+spec:
+  forProvider:
+    manifest:
+      apiVersion: apps.emqx.io/v2beta1
+      kind: EMQX
+      metadata:
+        name: emqx
+        namespace: default
+      spec:
+        image: emqx:5
+  providerConfigRef:
+    name: kubernetes-provider
+
+
+
+
+
+#########################################
+#########
+######### COME INSTALLARE IL PROVIDER REMOTO
+#########
+
+---
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  annotations:
+    uptest.upbound.io/timeout: "60"
+  name: broker-emqx
+  namespace: default
+spec:
+  providerConfigRef:
+    name: kubernetes-provider
+  forProvider:
+    manifest: {}
+      
+

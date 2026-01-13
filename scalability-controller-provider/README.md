@@ -1,38 +1,15 @@
-# provider-scalabilityprovider
+# Scalability Controller Provider
+## Overview
 
-`provider-scalabilityprovider` is a minimal [Crossplane](https://crossplane.io/) Provider
-that is meant to be used as a scalabilityprovider for implementing new Providers. It comes
-with the following features that are meant to be refactored:
+`scalability-controller-provider` is a [Crossplane](https://crossplane.io/) Provider 
+designed to act as a scalability controller within an IoT ecosystem. 
 
-- A `ProviderConfig` type that only points to a credentials `Secret`.
-- A `MyType` resource type that serves as an example managed resource.
-- A managed resource controller that reconciles `MyType` objects and simply
-  prints their configuration in its `Observe` method.
+The controller monitors and analyzes the performance metrics of existing MQTT Broker 
+instances. Based on the incoming data load from producers, it automatically 
+orchestrates the lifecycle of additional broker instances across a distributed 
+inter-cluster environment, ensuring seamless horizontal scaling and high availability.
 
-## Developing
-
-1. Use this repository as a scalabilityprovider to create a new one.
-1. Run `make submodules` to initialize the "build" Make submodule we use for CI/CD.
-1. Rename the provider by running the following command:
-```shell
-  export provider_name=MyProvider # Camel case, e.g. GitHub
-  make provider.prepare provider=${provider_name}
-```
-4. Add your new type by running the following command:
-```shell
-  export group=sample # lower case e.g. core, cache, database, storage, etc.
-  export type=MyType # Camel casee.g. Bucket, Database, CacheCluster, etc.
-  make provider.addtype provider=${provider_name} group=${group} kind=${type}
-```
-5. Replace the *sample* group with your new group in apis/{provider}.go
-5. Replace the *mytype* type with your new type in internal/controller/{provider}.go
-5. Replace the default controller and ProviderConfig implementations with your own
-5. Run `make reviewable` to run code generation, linters, and tests.
-5. Run `make build` to build the provider.
-
-Refer to Crossplane's [CONTRIBUTING.md] file for more information on how the
-Crossplane community prefers to work. The [Provider Development][provider-dev]
-guide may also be of use.
-
-[CONTRIBUTING.md]: https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md
-[provider-dev]: https://github.com/crossplane/crossplane/blob/master/contributing/guide-provider-development.md
+### Key Capabilities
+* **Traffic Analysis:** Monitors MQTT broker load and producer demand.
+* **Inter-cluster Orchestration:** Provisions managed resources across multiple Kubernetes clusters using Crossplane.
+* **Dynamic Load Distribution:** Balances incoming IoT telemetry by scaling the messaging infrastructure horizontally.

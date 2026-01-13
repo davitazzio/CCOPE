@@ -1,0 +1,24 @@
+apiVersion: scalability.scalabilityprovider.crossplane.io/v1alpha1
+kind: ScalabilityManager
+metadata:
+  name: example
+spec:
+  forProvider:
+    trashold: "500"
+  providerConfigRef:
+    name: example
+  serviceAccountName: scalability-provider-account
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scalability-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: scalability-provider-account
+  namespace: crossplane-system

@@ -1,0 +1,18 @@
+apiVersion: meta.pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: scalability-provider
+  annotations:
+    meta.crossplane.io/maintainer: Crossplane Maintainers <info@crossplane.io>
+    meta.crossplane.io/source: github.com/crossplane/provider-scalabilityprovider
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/description: |
+      A scalabilityprovider that can be used to create Crossplane providers.
+spec:
+  ignoreCrossplaneConstraints: true
+  package: docker.io/datavix/scalability-provider
+  packagePullPolicy: Always
+  revisionActivationPolicy: Automatic
+  revisionHistoryLimit: 0
+  controllerConfigRef: 
+    name: debug-config

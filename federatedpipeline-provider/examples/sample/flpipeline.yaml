@@ -1,0 +1,10 @@
+apiVersion: federatedlearning.providerfederatedpipeline.crossplane.io/v1alpha1
+kind: FLpipeline
+metadata:
+  name: flpipeline-1
+spec:
+  forProvider:
+    cluster_address: "http://dtazzioli-edge.cloudmmwunibo.it:8080"
+    topic_name: "mqtttopic-1"
+  providerConfigRef:
+    name: flpipelineprovider-config
